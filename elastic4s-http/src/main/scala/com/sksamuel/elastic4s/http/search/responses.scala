@@ -40,7 +40,7 @@ case class SearchHit(@JsonProperty("_id") id: String,
   def innerHits: Map[String, InnerHits] = Option(inner_hits).getOrElse(Map.empty).mapValues { hits =>
       val v = hits("hits").asInstanceOf[Map[String, AnyRef]]
       InnerHits(
-        total = v("total").asInstanceOf[Int],
+        total = v("total").asInstanceOf[Long],
         max_score = v("max_score").asInstanceOf[Double],
         hits = v("hits").asInstanceOf[Seq[Map[String, AnyRef]]].map { hits =>
           InnerHit(
@@ -54,7 +54,7 @@ case class SearchHit(@JsonProperty("_id") id: String,
   }
 }
 
-case class SearchHits(total: Int,
+case class SearchHits(total: Long,
                       @JsonProperty("max_score") maxScore: Double,
                       hits: Array[SearchHit]) {
   def size: Int = hits.length
@@ -62,7 +62,7 @@ case class SearchHits(total: Int,
   def nonEmpty: Boolean = hits.nonEmpty
 }
 
-case class InnerHits(total: Int,
+case class InnerHits(total: Long,
                      max_score: Double,
                      hits: Seq[InnerHit])
 
@@ -80,7 +80,7 @@ case class SearchResponse(took: Int,
                           @JsonProperty("aggregations") aggregationsAsMap: Map[String, Any],
                           hits: SearchHits) {
 
-  def totalHits: Int = hits.total
+  def totalHits: Long = hits.total
   def size: Int = hits.size
   def ids: Seq[String] = hits.hits.map(_.id)
   def maxScore: Double = hits.maxScore

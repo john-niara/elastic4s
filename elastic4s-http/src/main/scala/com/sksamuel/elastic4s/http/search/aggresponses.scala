@@ -14,8 +14,8 @@ case class TermBucket(key: String,
 
 case class TermsAggResult(name: String,
                           buckets: Seq[TermBucket],
-                          docCountErrorUpperBound: Int,
-                          otherDocCount: Int) extends BucketAggregation {
+                          docCountErrorUpperBound: Long,
+                          otherDocCount: Long) extends BucketAggregation {
 
   @deprecated("use buckets", "5.2.9")
   def getBuckets: Seq[TermBucket] = buckets
@@ -33,12 +33,12 @@ object TermsAggResult {
     data("buckets").asInstanceOf[Seq[Map[String, Any]]].map { map =>
       TermBucket(
         map("key").toString,
-        map("doc_count").toString.toInt,
+        map("doc_count").toString.toLong,
         map
       )
     },
-    data("doc_count_error_upper_bound").toString.toInt,
-    data("sum_other_doc_count").toString.toInt
+    data("doc_count_error_upper_bound").toString.toLong,
+    data("sum_other_doc_count").toString.toLong
   )
 }
 
@@ -54,7 +54,7 @@ object DateHistogramAggResult {
       DateHistogramBucket(
         map("key_as_string").toString,
         map("key").toString.toLong,
-        map("doc_count").toString.toInt,
+        map("doc_count").toString.toLong,
         map
       )
     }
@@ -121,7 +121,7 @@ trait HasAggregations {
   def names: Iterable[String] = data.keys
 
   // bucket aggs
-  def filter(name: String): FilterAggregationResult = FilterAggregationResult(name, agg(name)("doc_count").toString.toInt, agg(name))
+  def filter(name: String): FilterAggregationResult = FilterAggregationResult(name, agg(name)("doc_count").toString.toLong, agg(name))
   def dateHistogram(name: String): DateHistogramAggResult = DateHistogramAggResult(name, agg(name))
   def terms(name: String): TermsAggResult = TermsAggResult(name, agg(name))
   def children(name: String): ChildrenAggResult = ChildrenAggResult(name, agg(name))
@@ -145,5 +145,5 @@ trait BucketAggregation {
 }
 
 case class FilterAggregationResult(name: String,
-                                   docCount: Int,
+                                   docCount: Long,
                                    private[elastic4s] val data: Map[String, Any]) extends BucketAggregation with HasAggregations
